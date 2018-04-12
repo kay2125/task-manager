@@ -1,0 +1,197 @@
+  <!DOCTYPE HTML>
+  <html>
+
+  <head>
+    <title>Task Manager</title>
+    <link rel="stylesheet" type="text/css" href="style/style.css" title="style" />
+  </head>
+
+  <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+    <div id="main">
+      <div id="header">
+        <div id="logo">
+          <div id="logo_text">
+            <h1><a href="index.html">Task Manager</a></h1>
+          </div>
+        </div>
+        <div id="menubar">
+          <ul id="menu">
+            <li class="selected"><a href="index.html">Lists</a></li>
+            <li><a onclick="addList()">Add List</a></li>
+          </ul>
+        </div>
+      </div>
+      <div id="site_content">
+        <div id="content">
+          <ul class="listClass" id="columns">
+            <li id="l1" class="column" draggable="true">
+              <header>
+                  <h4><b>List Item 1</b></h4>
+                  <p class="editable-block" contenteditable="true"> Description : sample list description which is editable </p>
+                  <button id="l1" onClick={deleteItem()}>Delete</button>
+              </header>
+            </li>
+            <li id="l2" class="column" draggable="true"><header>  <h4><b>List Item 2</b></h4>
+              <p class="editable-block" contenteditable="true"> Description : sample list description which is editable </p>
+            <button id="l2" onClick={deleteItem()}>Delete</button></header>
+            </li>
+            <li id="l3" class="column" draggable="true"><header>  <h4><b>List Item 3</b></h4>
+              <p class="editable-block" contenteditable="true"> Description : sample list description which is editable </p>
+            <button id="l3" onClick={deleteItem()}>Delete</button></header>
+            </li>
+
+              <button id="columns" onclick="addListItem(this.id)">Add Item </button>
+          </ul>
+       </div>
+      </div>
+    </div>
+
+
+  <script>
+  var dragSrcEl = null;
+
+  function handleDragStart(e) {
+    // Target (this) element is the source node.
+    dragSrcEl = this;
+    console.log(dragSrcEl)
+
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.outerHTML);
+
+    this.classList.add('dragElem');
+  }
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    this.classList.add('over');
+
+    e.dataTransfer.dropEffect = 'move';
+
+    return false;
+  }
+
+  function handleDragEnter(e) {
+    // this / e.target is the current hover target.
+  }
+
+  function handleDragLeave(e) {
+    this.classList.remove('over');  // this / e.target is previous target element.
+  }
+
+  function handleDrop(e) {
+
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+
+    if (dragSrcEl != this) {
+      this.parentNode.removeChild(dragSrcEl);
+      var dropHTML = e.dataTransfer.getData('text/html');
+      this.insertAdjacentHTML('beforebegin',dropHTML);
+      var dropElem = this.previousSibling;
+      addDnDHandlers(dropElem);
+    }
+    this.classList.remove('over');
+    return false;
+  }
+
+  function handleDragEnd(e) {
+    this.classList.remove('over');
+ }
+
+  function addDnDHandlers(elem) {
+    elem.addEventListener('dragstart', handleDragStart, false);
+    elem.addEventListener('dragenter', handleDragEnter, false)
+    elem.addEventListener('dragover', handleDragOver, false);
+    elem.addEventListener('dragleave', handleDragLeave, false);
+    elem.addEventListener('drop', handleDrop, false);
+    elem.addEventListener('dragend', handleDragEnd, false);
+
+  }
+
+  var cols = document.querySelectorAll('#columns .column');
+  [].forEach.call(cols, addDnDHandlers);
+
+
+  //delete any item from the list
+  function deleteItem(){
+    // alert(event.target.id)
+    var elem = document.getElementById(event.target.id);
+    elem.parentNode.removeChild(elem);
+  }
+
+  //add items to the list
+  function addListItem(listid){
+    var id = "l" + Math.random().toString(10).slice(2)
+
+    var listItem = document.createElement("LI");
+    listItem.classList.add("column")
+    listItem.setAttribute("draggable", true);
+    listItem.setAttribute("id", id);
+
+    addDnDHandlers(listItem)
+
+
+    var listItemHeader = document.createElement("HEADER");
+    var listItemh4 = document.createElement("H4");
+    var listItemB = document.createElement("B");
+    var listItemP = document.createElement("p");
+    listItemP.classList.add("editable-block")
+    listItemP.setAttribute("contenteditable", true);
+
+
+    var delButton = document.createElement("BUTTON");
+    delButton.setAttribute("onClick","deleteItem()");
+    delButton.setAttribute("id",id);
+
+    var delButtonText = document.createTextNode("Delete");
+    delButton.appendChild(delButtonText);
+
+
+    listItem.appendChild(listItemHeader);
+    listItemHeader.appendChild(listItemh4);
+    listItemh4.appendChild(listItemB);
+    listItemHeader.appendChild(listItemP);
+    listItemHeader.appendChild(delButton);
+
+
+
+
+    var listTitle = document.createTextNode("New List Item");
+    listItemB.appendChild(listTitle);
+
+    var listDescription = document.createTextNode("Description : sample list description for new list item")
+    listItemP.appendChild(listDescription)
+
+
+    var list = document.getElementById(event.target.id);
+    list.insertBefore(listItem, list.childNodes[0]);
+  }
+
+
+  //add a new list
+  function addList(){
+    var id = "id" + Math.random().toString(10).slice(2)
+
+    var newList = document.createElement("UL")
+    newList.setAttribute("id",id);
+    newList.setAttribute("class","listClass");
+
+    var addButton = document.createElement("BUTTON");
+    addButton.setAttribute("onClick","addListItem()");
+    addButton.setAttribute("id",id);
+
+    var addButtonText = document.createTextNode("Add Item");
+    addButton.appendChild(addButtonText);
+
+    newList.appendChild(addButton);
+    document.getElementById("content").appendChild(newList);
+
+
+  }
+  </script>
+  </body>
+  </html>
